@@ -102,13 +102,44 @@ export default function NewAudit() {
 
   return (
     <div>
-      <h1>Nova Auditoria</h1>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '2rem',
+        paddingBottom: '1rem',
+        borderBottom: '2px solid #e5e7eb'
+      }}>
+        <div>
+          <h1 style={{ margin: 0, marginBottom: '0.5rem' }}>Nova Auditoria</h1>
+          <p style={{ margin: 0, color: '#6b7280', fontSize: '0.95rem' }}>
+            Preencha as informações e avalie todos os critérios do checklist
+          </p>
+        </div>
+      </div>
       
       {error && <div className="alert alert-error">{error}</div>}
 
       <form onSubmit={handleSubmit}>
-        <div className="card">
-          <h2>Informações Gerais</h2>
+        <div className="card" style={{
+          background: 'linear-gradient(to bottom, #ffffff, #f9fafb)',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+        }}>
+          <h2 style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            color: '#1f2937',
+            fontSize: '1.25rem',
+            marginBottom: '1.5rem'
+          }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+            </svg>
+            Informações Gerais
+          </h2>
           
           <div className="form-group">
             <label htmlFor="version">Versão do Plano de Medição (opcional)</label>
@@ -132,11 +163,52 @@ export default function NewAudit() {
           </div>
         </div>
 
-        <div className="card">
-          <h2>Checklist do Plano de Medição (15 critérios)</h2>
-          <p style={{ color: '#666', marginBottom: '2rem' }}>
-            Avalie cada critério abaixo:
-          </p>
+        <div className="card" style={{
+          background: 'linear-gradient(to bottom, #ffffff, #f9fafb)',
+          border: '1px solid #e5e7eb',
+          boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+        }}>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '2rem',
+            paddingBottom: '1rem',
+            borderBottom: '2px solid #e5e7eb'
+          }}>
+            <div>
+              <h2 style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                color: '#1f2937',
+                fontSize: '1.25rem',
+                margin: 0,
+                marginBottom: '0.5rem'
+              }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                </svg>
+                Checklist do Plano de Medição
+              </h2>
+              <p style={{ color: '#6b7280', margin: 0, fontSize: '0.9rem' }}>
+                Avalie cada um dos 15 critérios organizados em 4 blocos
+              </p>
+            </div>
+            <span style={{
+              background: '#2563eb',
+              color: 'white',
+              padding: '0.5rem 1rem',
+              borderRadius: '0.5rem',
+              fontSize: '0.9rem',
+              fontWeight: '600'
+            }}>
+              15 critérios
+            </span>
+          </div>
 
           {(() => {
             // Agrupar itens por categoria
@@ -148,15 +220,29 @@ export default function NewAudit() {
 
             return Object.entries(grouped).map(([category, items]) => (
               <div key={category} style={{ marginBottom: '3rem' }}>
-                <h3 style={{ 
-                  color: '#2563eb', 
-                  borderBottom: '2px solid #2563eb', 
-                  paddingBottom: '0.5rem',
+                <div style={{
+                  background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                  color: 'white',
+                  padding: '1rem 1.5rem',
+                  borderRadius: '0.5rem',
                   marginBottom: '1.5rem',
-                  fontSize: '1.1rem'
+                  boxShadow: '0 2px 4px rgba(37, 99, 235, 0.2)'
                 }}>
-                  {category}
-                </h3>
+                  <h3 style={{ 
+                    margin: 0,
+                    fontSize: '1.05rem',
+                    fontWeight: '600',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <polyline points="9 11 12 14 22 4"></polyline>
+                      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                    </svg>
+                    {category}
+                  </h3>
+                </div>
                 
                 <table className="table">
                   <thead>
@@ -227,21 +313,64 @@ export default function NewAudit() {
           })()}
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '1rem', 
+          justifyContent: 'flex-end',
+          marginTop: '2rem',
+          paddingTop: '2rem',
+          borderTop: '2px solid #e5e7eb'
+        }}>
           <button
             type="button"
             onClick={() => navigate('/audits')}
             className="btn btn-secondary"
             disabled={submitting}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem'
+            }}
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
             Cancelar
           </button>
           <button
             type="submit"
             className="btn btn-primary"
             disabled={submitting}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.75rem 1.5rem',
+              fontSize: '1rem',
+              fontWeight: '600',
+              background: submitting ? '#9ca3af' : 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+              boxShadow: submitting ? 'none' : '0 2px 4px rgba(37, 99, 235, 0.3)'
+            }}
           >
-            {submitting ? 'Salvando...' : 'Finalizar Auditoria'}
+            {submitting ? (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}>
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+                </svg>
+                Salvando...
+              </>
+            ) : (
+              <>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9 11 12 14 22 4"></polyline>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                Finalizar Auditoria
+              </>
+            )}
           </button>
         </div>
       </form>
