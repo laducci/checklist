@@ -192,7 +192,9 @@ export default function AuditReport() {
             </tr>
           </thead>
           <tbody>
-            {report.answers.map((answer: any) => (
+            {report.answers
+              .sort((a: any, b: any) => a.checklistItem.order - b.checklistItem.order)
+              .map((answer: any) => (
               <tr key={answer.id}>
                 <td>{answer.checklistItem.order}</td>
                 <td><strong>{answer.checklistItem.code}</strong></td>
