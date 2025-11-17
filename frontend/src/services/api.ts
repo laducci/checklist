@@ -186,6 +186,15 @@ class ApiService {
     if (!response.ok) throw new Error('Erro ao atualizar não conformidade');
     return response.json();
   }
+
+  async resendNCEmail(id: string) {
+    const response = await fetch(`${API_URL}/non-conformities/${id}/resend-email`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Erro ao reenviar email');
+    return response.json();
+  }
 }
 
 export const api = new ApiService();

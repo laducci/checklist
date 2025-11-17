@@ -218,7 +218,17 @@ export default function NewAudit() {
               return acc;
             }, {} as Record<string, ChecklistItem[]>);
 
-            return Object.entries(grouped).map(([category, items]) => (
+            // Ordenar categorias para manter a ordem correta dos blocos
+            const orderedCategories = [
+              'BLOCO 1 - Estabelecimento dos Objetivos de Medição',
+              'BLOCO 2 - Especificação das Medidas',
+              'BLOCO 3 - Coleta e Armazenamento dos Dados',
+              'BLOCO 4 - Análise, Interpretação e Comunicação'
+            ];
+
+            return orderedCategories.filter(cat => grouped[cat]).map((category) => {
+              const items = grouped[category];
+              return (
               <div key={category} style={{ marginBottom: '3rem' }}>
                 <div style={{
                   background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
@@ -309,8 +319,9 @@ export default function NewAudit() {
                   </tbody>
                 </table>
               </div>
-            ));
-          })()}
+            );
+          });}
+          )()}
         </div>
 
         <div style={{ 

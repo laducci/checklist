@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../../lib/prisma';
 import { updateNCSchema } from '../../lib/validation';
-import { sendNCStatusChangeEmail } from '../../lib/email';
+import { sendNCStatusChangeEmail, sendNCCreationEmail } from '../../lib/email';
 import { NCStatus } from '@prisma/client';
 
 export async function getNonConformities(req: Request, res: Response) {
@@ -188,5 +188,54 @@ export async function updateNonConformity(req: Request, res: Response) {
   } catch (error) {
     console.error('Erro ao atualizar não conformidade:', error);
     res.status(400).json({ error: 'Erro ao atualizar não conformidade' });
+  }
+}
+
+export async function resendNCEmail(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    const nc = await prisma.nonConformity.findUnique({
+      where: { id },
+      include: {
+        checklistItem: true,
+        assignedTo: {
+          select: {
+            email: true,
+          },
+        },
+      },
+    });
+
+    if (!nc) {
+      return res.status(404).json({ error: 'Não conformidade não encontrada' });
+    }
+
+    const recipientEmail = nc.assignedTo?.email || process.env.DEFAULT_QUALITY_EMAIL || '';
+    
+    if (!recipientEmail) {
+      return res.status(400).json({ error: 'Nenhum email de destino disponível' });
+    }
+
+    await sendNCCreationEmail(
+      nc.title,
+      nc.description,
+      nc.checklistItem.code,
+      nc.checklistItem.title,
+      nc.severity || 'MEDIA',
+      nc.responsible || undefined,
+      recipientEmail
+    );
+
+    // Atualizar flag de email enviado
+    await prisma.nonConformity.update({
+      where: { id },
+      data: { emailSent: true },
+    });
+
+    res.json({ message: 'Email reenviado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao reenviar email:', error);
+    res.status(500).json({ error: 'Erro ao reenviar email' });
   }
 }

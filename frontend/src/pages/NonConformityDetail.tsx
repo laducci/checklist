@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 
@@ -11,6 +11,8 @@ export default function NonConformityDetail() {
   const [updating, setUpdating] = useState(false);
 
   const [editMode, setEditMode] = useState(false);
+  const editSectionRef = useRef<HTMLDivElement>(null);
+  const [resendingEmail, setResendingEmail] = useState(false);
   const [formData, setFormData] = useState({
     status: '',
     assignedToUserId: '',
@@ -91,6 +93,25 @@ export default function NonConformityDetail() {
     }
   };
 
+  const handleResendEmail = async () => {
+    if (!id) return;
+    
+    if (!confirm('Deseja reenviar o email de notificação desta NC?')) {
+      return;
+    }
+
+    setResendingEmail(true);
+    try {
+      await api.resendNCEmail(id);
+      await loadData();
+      alert('Email reenviado com sucesso!');
+    } catch (err) {
+      alert('Erro ao reenviar email');
+    } finally {
+      setResendingEmail(false);
+    }
+  };
+
   if (loading) return <div className="loading">Carregando...</div>;
   if (error && !nc) return <div className="alert alert-error">{error}</div>;
   if (!nc) return <div className="alert alert-error">Não conformidade não encontrada</div>;
@@ -110,8 +131,24 @@ export default function NonConformityDetail() {
           <Link to="/non-conformities" className="btn btn-secondary">
             Voltar
           </Link>
+          <button 
+            onClick={handleResendEmail} 
+            className="btn btn-secondary"
+            disabled={resendingEmail}
+            style={{
+              background: resendingEmail ? '#94a3b8' : '#f59e0b',
+              borderColor: resendingEmail ? '#94a3b8' : '#f59e0b',
+            }}
+          >
+            {resendingEmail ? 'Enviando...' : 'Reenviar Email'}
+          </button>
           {!editMode && (
-            <button onClick={() => setEditMode(true)} className="btn btn-primary">
+            <button onClick={() => {
+              setEditMode(true);
+              setTimeout(() => {
+                editSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }, 100);
+            }} className="btn btn-primary">
               Editar
             </button>
           )}
@@ -222,7 +259,7 @@ export default function NonConformityDetail() {
       </div>
 
       {editMode && (
-        <div className="card">
+        <div ref={editSectionRef} className="card">
           <h2>Editar Não Conformidade</h2>
           <form onSubmit={handleUpdate}>
             <div className="form-group">
