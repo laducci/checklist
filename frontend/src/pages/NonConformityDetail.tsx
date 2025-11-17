@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { api } from '../services/api';
 
 export default function NonConformityDetail() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [nc, setNc] = useState<any>(null);
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
