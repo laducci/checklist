@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(AUDITOR)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  auditsPerformed           Audit[]           @relation("AuditorAudits")
+  nonConformitiesOpened     NonConformity[]   @relation("OpenedByUser")
+  nonConformitiesAssigned   NonConformity[]   @relation("AssignedToUser")
+  nonConformityEventsCreated NonConformityEvent[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  AUDITOR
+  QUALITY_MANAGER
+  VIEWER
+}
+
+model ChecklistItem {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  title       String
+  description String   @db.Text
+  category    String   @default("")
+  order       Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  auditAnswers     AuditAnswer[]
+  nonConformities  NonConformity[]
+
+  @@map("checklist_items")
+}
+
+model Audit {
+  id                         String   @id @default(uuid())
+  performedByUserId          String   @map("performed_by_user_id")
+  performedAt                DateTime @default(now()) @map("performed_at")
+  measurementPlanVersion     String?  @map("measurement_plan_version")
+  overallAdherencePercentage Float    @map("overall_adherence_percentage")
+  notes                      String?  @db.Text
+  createdAt                  DateTime @default(now()) @map("created_at")
+  updatedAt                  DateTime @updatedAt @map("updated_at")
+
+  performedBy     User            @relation("AuditorAudits", fields: [performedByUserId], references: [id])
+  answers         AuditAnswer[]
+  nonConformities NonConformity[]
+
+  @@map("audits")
+}
+
+model AuditAnswer {
+  id              String       @id @default(uuid())
+  auditId         String       @map("audit_id")
+  checklistItemId String       @map("checklist_item_id")
+  answer          AnswerStatus
+  comment         String?      @db.Text
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+
+  audit         Audit         @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  checklistItem ChecklistItem @relation(fields: [checklistItemId], references: [id])
+
+  @@unique([auditId, checklistItemId])
+  @@map("audit_answers")
+}
+
+enum AnswerStatus {
+  COMPLIANT
+  NON_COMPLIANT
+  NOT_APPLICABLE
+}
+
+model NonConformity {
+  id                String       @id @default(uuid())
+  auditId           String       @map("audit_id")
+  checklistItemId   String       @map("checklist_item_id")
+  openedByUserId    String       @map("opened_by_user_id")
+  assignedToUserId  String?      @map("assigned_to_user_id")
+  status            NCStatus     @default(OPEN)
+  severity          NCSeverity   @default(MEDIA)
+  title             String
+  description       String       @db.Text
+  rootCause         String?      @db.Text @map("root_cause")
+  correctiveAction  String?      @db.Text @map("corrective_action")
+  responsible       String?
+  observations      String?      @db.Text
+  emailSent         Boolean      @default(false) @map("email_sent")
+  dueDate           DateTime?    @map("due_date")
+  resolvedAt        DateTime?    @map("resolved_at")
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  audit         Audit                    @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  checklistItem ChecklistItem            @relation(fields: [checklistItemId], references: [id])
+  openedBy      User                     @relation("OpenedByUser", fields: [openedByUserId], references: [id])
+  assignedTo    User?                    @relation("AssignedToUser", fields: [assignedToUserId], references: [id])
+  events        NonConformityEvent[]
+
+  @@map("non_conformities")
+}
+
+enum NCStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+}
+
+enum NCSeverity {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+model NonConformityEvent {
+  id               String    @id @default(uuid())
+  nonConformityId  String    @map("non_conformity_id")
+  eventType        String    @map("event_type")
+  oldStatus        NCStatus? @map("old_status")
+  newStatus        NCStatus? @map("new_status")
+  comment          String?   @db.Text
+  createdByUserId  String    @map("created_by_user_id")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  nonConformity NonConformity @relation(fields: [nonConformityId], references: [id], onDelete: Cascade)
+  createdBy     User          @relation(fields: [createdByUserId], references: [id])
+
+  @@map("non_conformity_events")
+}
